@@ -142,19 +142,3 @@ An AI coding assistant was used throughout development. The assistant generated 
 3. **Database integration:** Writing the MongoDB aggregation pipelines for custom sorting (priority order, undated tasks last), pagination with `$facet`, and the stats endpoint.
 4. **Testing:** Writing integration tests with Supertest and an in-memory MongoDB, covering CRUD, validation, filtering, sorting, pagination and stats.
 5. **Debugging:** Diagnosing failures found while running the tests and the app (see below).
-
-### Issues found during development and how they were fixed
-
-- **Test script failed on Node 24.** `node --test tests/` treated the folder as a single module and crashed with `MODULE_NOT_FOUND`. Fixed by using a glob pattern: `node --test "tests/**/*.test.js"`.
-- **Form lost user input on errors.** Errors from creating a task were caught in `App.jsx`, so the form thought the request had succeeded and cleared what the user typed. Fixed by letting the error reach `TaskForm`, which now keeps the input and lets the parent display the error.
-- **Deprecated Mongoose option.** `findByIdAndUpdate(..., { new: true })` was replaced with `returnDocument: 'after'`, which Mongoose 9 prefers.
-
-### Pitfalls handled in the design
-
-- **Alphabetical priority sorting.** A plain `sort({ priority: -1 })` would order priorities as medium → low → high. The API instead computes a numeric `priorityRank` in an aggregation stage and sorts on that (covered by a test).
-- **Route order.** `GET /api/tasks/stats` would be matched by `/:id` and rejected as an invalid id, so `/stats` is registered first (covered by a test).
-- **Empty page after deleting.** Deleting the only task on the last page would leave the user on an empty page. An effect in `App.jsx` moves back to the last valid page.
-
-### Takeaways
-
-AI sped up boilerplate (schemas, routes, components, test setup) a lot. Every change still had to be checked by running it. Several of the issues above only showed up when the tests or the app were actually run.
